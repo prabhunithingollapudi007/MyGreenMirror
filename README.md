@@ -25,7 +25,7 @@ I built MyGreenMirror using **React** and **Tailwind CSS** for a responsive, mob
 
 **AI Studio Link**: [https://ai.studio/apps/drive/1xq8OT_qj_7fc9B07HsIDkA4is_06kdCD?fullscreenApplet=true]
 
-**30s walkthrough**: [loom-link]
+**Video walkthrough**: [https://www.loom.com/share/ed48b2bdd1f7428585959ae2e1a9f2ee]
 
 
 ## Why it matters
