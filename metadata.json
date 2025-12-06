@@ -1,0 +1,8 @@
+{
+  "name": "MyGreenMirror",
+  "description": "Analyze your daily habits, recycling, and commute to estimate carbon footprint. Collect 3D badges, compete with friends, and visualize your impact.",
+  "requestFramePermissions": [
+    "microphone",
+    "camera"
+  ]
+}
