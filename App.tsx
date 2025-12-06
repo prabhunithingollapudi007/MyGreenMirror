@@ -6,7 +6,7 @@ import { LeaderboardView } from './components/LeaderboardView';
 import { MediaType, AnalysisResult, UserProfile, LogEntry } from './types';
 import { analyzeMedia, generateEcoVisualization } from './services/geminiService';
 import { loginUser, logoutUser, saveLog, getLeaderboard, deleteLog, getUser, createGuestUser } from './services/storageService';
-import { User, Scan, Trophy, ArrowRight } from 'lucide-react';
+import { User, Scan, Trophy, ArrowRight, Activity } from 'lucide-react';
 import { Logo } from './components/Logo';
 
 type ViewState = 'scan' | 'profile' | 'leaderboard';
@@ -126,7 +126,8 @@ const App: React.FC = () => {
          </div>
          <h1 className="text-4xl font-bold text-stone-100 mb-2">MyGreenMirror</h1>
          <p className="text-stone-400 max-w-md mb-8">
-           Join the community of eco-conscious individuals. Log habits, visualize your impact, and compete with friends.
+           Your personal carbon footprint analyzer. 
+           Measure the environmental impact of your daily choices, track your emissions, and discover ways to live more sustainably.
          </p>
          
          <div className="flex flex-col gap-4 w-full max-w-xs">
@@ -140,14 +141,14 @@ const App: React.FC = () => {
              ) : (
                <svg className="w-5 h-5" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
              )}
-             Sign in with Google
+             Start Tracking Profile
            </button>
            
            <button 
              onClick={handleGuestAccess}
              className="w-full bg-stone-800 text-stone-300 px-6 py-3.5 rounded-xl font-medium flex items-center justify-center gap-2 hover:bg-stone-700 hover:text-stone-100 transition-all"
            >
-             Continue as Guest <ArrowRight size={16} />
+             Explore as Guest <ArrowRight size={16} />
            </button>
          </div>
       </div>
@@ -173,7 +174,7 @@ const App: React.FC = () => {
                  onClick={() => handleLogin()}
                  className="hidden sm:flex text-sm font-semibold text-emerald-400 bg-emerald-500/10 px-3 py-1.5 rounded-lg border border-emerald-500/20 mr-2 hover:bg-emerald-500/20"
                >
-                 Sign In
+                 Sign In to Save
                </button>
             )}
             
@@ -181,18 +182,21 @@ const App: React.FC = () => {
               <button 
                 onClick={() => { setCurrentView('scan'); handleReset(); }}
                 className={`p-2 rounded-full transition-all ${currentView === 'scan' ? 'bg-stone-700 shadow-sm text-emerald-400' : 'text-stone-500 hover:text-stone-300'}`}
+                title="Analyzer"
               >
                 <Scan size={20} />
               </button>
               <button 
                 onClick={() => { if(!isAnalyzing) setCurrentView('leaderboard'); }}
                 className={`p-2 rounded-full transition-all ${currentView === 'leaderboard' ? 'bg-stone-700 shadow-sm text-emerald-400' : 'text-stone-500 hover:text-stone-300'}`}
+                title="Community Stats"
               >
-                <Trophy size={20} />
+                <Activity size={20} />
               </button>
               <button 
                 onClick={() => { if(!isAnalyzing) setCurrentView('profile'); }}
                 className={`p-2 rounded-full transition-all ${currentView === 'profile' ? 'bg-stone-700 shadow-sm text-emerald-400' : 'text-stone-500 hover:text-stone-300'}`}
+                title="Your Footprint"
               >
                 <User size={20} />
               </button>
@@ -211,9 +215,12 @@ const App: React.FC = () => {
               <>
                 <div className="text-center mb-10 mt-4">
                   <h1 className="text-3xl sm:text-5xl font-extrabold text-stone-100 tracking-tight mb-3">
-                     Hello, <span className="text-emerald-500">{user ? user.name.split(' ')[0] : 'Guest'}</span>
+                     Your Carbon <span className="text-emerald-500">Footprint</span>
                   </h1>
-                  <p className="text-stone-400">Ready to log a new habit?</p>
+                  <p className="text-stone-400 max-w-lg mx-auto leading-relaxed">
+                    Understand the environmental cost of your daily choices. 
+                    Upload media to calculate emissions, visualize data, and track your personal impact over time.
+                  </p>
                 </div>
                 <MediaInput onAnalyze={handleAnalyze} isAnalyzing={isAnalyzing} />
               </>

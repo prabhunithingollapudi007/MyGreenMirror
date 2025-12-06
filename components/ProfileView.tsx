@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { UserProfile, LogEntry } from '../types';
-import { Trophy, Flame, Calendar, Box, LogOut, Save, AlertTriangle } from 'lucide-react';
+import { Trophy, Flame, Calendar, Box, LogOut, Save, AlertTriangle, BarChart2 } from 'lucide-react';
 import { DailyProgress } from './DailyProgress';
 import { BadgeModal } from './BadgeModal';
 
@@ -40,7 +40,7 @@ export const ProfileView: React.FC<Props> = ({ user, onLogout, onDeleteLog, onLo
              </div>
              <div>
                <h3 className="font-bold text-amber-500">Guest Mode Active</h3>
-               <p className="text-sm text-stone-400">Your progress and badges will be lost when you close this session.</p>
+               <p className="text-sm text-stone-400">Your historical emission data will be lost when you close this session.</p>
              </div>
           </div>
           {onLogin && (
@@ -48,7 +48,7 @@ export const ProfileView: React.FC<Props> = ({ user, onLogout, onDeleteLog, onLo
               onClick={onLogin}
               className="w-full sm:w-auto px-6 py-2.5 bg-amber-500 hover:bg-amber-400 text-stone-950 font-bold rounded-xl flex items-center justify-center gap-2 transition-colors shadow-lg shadow-amber-900/20"
             >
-              <Save size={18} /> Save Progress & Sign In
+              <Save size={18} /> Save Data & Sign In
             </button>
           )}
         </div>
@@ -64,13 +64,17 @@ export const ProfileView: React.FC<Props> = ({ user, onLogout, onDeleteLog, onLo
         </div>
         <div className="flex-1">
           <h2 className="text-2xl font-bold text-stone-100">{user.name}</h2>
-          <p className="text-stone-500">{user.email || 'Temporary Guest Account'}</p>
-          <div className="flex flex-wrap justify-center md:justify-start gap-4 mt-4">
-            <div className="flex items-center gap-2 bg-amber-500/10 text-amber-500 px-3 py-1.5 rounded-full text-sm font-semibold border border-amber-500/20">
-              <Flame size={16} /> {user.streakDays} Day Streak
-            </div>
-            <div className="flex items-center gap-2 bg-emerald-500/10 text-emerald-500 px-3 py-1.5 rounded-full text-sm font-semibold border border-emerald-500/20">
-              <Trophy size={16} /> {user.totalPoints} Eco-Points
+          <p className="text-stone-500 mb-4">{user.email || 'Temporary Guest Account'}</p>
+          
+          <div className="bg-stone-800/50 rounded-xl p-4 border border-stone-800">
+            <p className="text-sm text-stone-400 mb-2">Total Impact Overview</p>
+            <div className="flex flex-wrap justify-center md:justify-start gap-4">
+              <div className="flex items-center gap-2 bg-amber-500/10 text-amber-500 px-3 py-1.5 rounded-full text-sm font-semibold border border-amber-500/20">
+                <Flame size={16} /> {user.streakDays} Day Logging Streak
+              </div>
+              <div className="flex items-center gap-2 bg-emerald-500/10 text-emerald-500 px-3 py-1.5 rounded-full text-sm font-semibold border border-emerald-500/20">
+                <BarChart2 size={16} /> {user.totalPoints} Impact Points
+              </div>
             </div>
           </div>
         </div>
@@ -79,17 +83,25 @@ export const ProfileView: React.FC<Props> = ({ user, onLogout, onDeleteLog, onLo
         </button>
       </div>
 
+      <div className="bg-stone-900 p-6 rounded-3xl border border-stone-800">
+         <h3 className="font-bold text-stone-200 mb-2">About Your Score</h3>
+         <p className="text-stone-400 text-sm leading-relaxed">
+            Your total impact points are an abstraction of your positive contribution. 
+            By logging low-carbon activities and becoming aware of high-carbon ones, you are actively managing your personal footprint.
+         </p>
+      </div>
+
       {/* Daily Progress */}
       <DailyProgress logs={user.logs} />
 
       {/* Badges Grid */}
       <div>
         <h3 className="text-lg font-bold text-stone-200 mb-4 flex items-center gap-2">
-          <Box size={20} className="text-emerald-500" /> My 3D Badges
+          <Box size={20} className="text-emerald-500" /> Impact Visualizations
         </h3>
         {user.logs.filter(l => l.visualizationUrl).length === 0 ? (
           <div className="bg-stone-900 rounded-2xl p-8 text-center text-stone-500 border border-dashed border-stone-800">
-            <p>No badges collected yet. Scan habits to earn 3D collectibles!</p>
+            <p>No activity visualizations yet. Log an item to generate a carbon-impact representation.</p>
           </div>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
@@ -115,11 +127,11 @@ export const ProfileView: React.FC<Props> = ({ user, onLogout, onDeleteLog, onLo
       {/* Recent Activity */}
       <div>
         <h3 className="text-lg font-bold text-stone-200 mb-4 flex items-center gap-2">
-          <Calendar size={20} className="text-stone-500" /> History
+          <Calendar size={20} className="text-stone-500" /> Activity History
         </h3>
         <div className="bg-stone-900 rounded-3xl shadow-sm border border-stone-800 divide-y divide-stone-800 overflow-hidden">
           {user.logs.length === 0 ? (
-            <div className="p-6 text-center text-stone-500">No logs yet. Start analyzing!</div>
+            <div className="p-6 text-center text-stone-500">No logs yet. Start analyzing to build your history!</div>
           ) : (
             user.logs.map(log => (
               <div key={log.id} className="p-4 flex items-center justify-between hover:bg-stone-800 transition-colors">

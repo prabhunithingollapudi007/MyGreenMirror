@@ -1,6 +1,6 @@
 import React from 'react';
 import { LeaderboardEntry } from '../types';
-import { Crown, Medal } from 'lucide-react';
+import { Crown, Medal, Globe } from 'lucide-react';
 
 interface Props {
   entries: LeaderboardEntry[];
@@ -10,8 +10,13 @@ export const LeaderboardView: React.FC<Props> = ({ entries }) => {
   return (
     <div className="space-y-6 animate-fade-in pb-20">
       <div className="text-center py-4">
-         <h2 className="text-2xl font-bold text-stone-100">Local Leaderboard</h2>
-         <p className="text-stone-500">See who's living mindfully in your area</p>
+         <h2 className="text-2xl font-bold text-stone-100 flex items-center justify-center gap-2">
+           <Globe size={24} className="text-emerald-500" /> Community Footprint
+         </h2>
+         <p className="text-stone-500 max-w-md mx-auto mt-2">
+           See how your carbon reduction efforts compare with others in your area. 
+           Collective individual action drives systemic change.
+         </p>
       </div>
 
       <div className="bg-stone-900 rounded-3xl shadow-sm border border-stone-800 overflow-hidden">
@@ -36,12 +41,12 @@ export const LeaderboardView: React.FC<Props> = ({ entries }) => {
               <h3 className={`font-semibold ${entry.isCurrentUser ? 'text-emerald-400' : 'text-stone-200'}`}>
                 {entry.name} {entry.isCurrentUser && '(You)'}
               </h3>
-              <p className="text-xs text-stone-500">Neighborhood Hero</p>
+              <p className="text-xs text-stone-500">Eco-Contributor</p>
             </div>
 
             <div className="text-right">
               <span className="block font-bold text-lg text-emerald-500">{entry.points}</span>
-              <span className="text-[10px] uppercase tracking-wider text-stone-600 font-medium">Points</span>
+              <span className="text-[10px] uppercase tracking-wider text-stone-600 font-medium">Impact Score</span>
             </div>
           </div>
         ))}

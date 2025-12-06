@@ -1,5 +1,5 @@
 import React, { useState, useRef, useCallback } from 'react';
-import { Upload, Mic, Video, Image as ImageIcon, X, StopCircle } from 'lucide-react';
+import { Upload, Mic, Video, Image as ImageIcon, X, StopCircle, BarChart3 } from 'lucide-react';
 import { MediaType } from '../types';
 
 interface Props {
@@ -101,14 +101,17 @@ export const MediaInput: React.FC<Props> = ({ onAnalyze, isAnalyzing }) => {
       {isAnalyzing ? (
         <div className="text-center py-20 animate-pulse">
            <div className="w-16 h-16 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto mb-6"></div>
-           <h3 className="text-2xl font-semibold text-stone-100">Analyzing Eco-Impact...</h3>
-           <p className="text-stone-400 mt-2">Identifying items and calculating footprint</p>
+           <h3 className="text-2xl font-semibold text-stone-100">Calculating Emissions...</h3>
+           <p className="text-stone-400 mt-2">Identifying items and estimating CO₂ equivalent.</p>
         </div>
       ) : (
         <div className="bg-stone-900 rounded-[2rem] shadow-xl p-8 border border-stone-800 transition-all">
           <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold text-stone-100 mb-2">Log a Daily Habit</h2>
-            <p className="text-stone-400">Upload a photo of your recycling bin, a video of your commute, or record a voice note.</p>
+            <h2 className="text-2xl font-bold text-stone-100 mb-2">Measure Your Impact</h2>
+            <p className="text-stone-400">
+              Take a photo of your meal, record your commute, or scan waste items. 
+              Our AI will estimate the carbon emissions (CO₂e) to help you see the big picture.
+            </p>
           </div>
 
           <div 
@@ -133,7 +136,7 @@ export const MediaInput: React.FC<Props> = ({ onAnalyze, isAnalyzing }) => {
                 <Upload size={32} />
               </div>
               <div className="text-center">
-                <p className="font-semibold text-stone-200 text-lg">Drop your photo or video here</p>
+                <p className="font-semibold text-stone-200 text-lg">Upload Media for Analysis</p>
                 <p className="text-sm text-stone-500 mt-1">Supports JPG, PNG, MP4</p>
               </div>
             </div>
@@ -141,7 +144,7 @@ export const MediaInput: React.FC<Props> = ({ onAnalyze, isAnalyzing }) => {
 
           <div className="relative flex py-8 items-center">
               <div className="flex-grow border-t border-stone-800"></div>
-              <span className="flex-shrink-0 mx-4 text-stone-500 text-sm font-medium uppercase tracking-widest">Or Record</span>
+              <span className="flex-shrink-0 mx-4 text-stone-500 text-sm font-medium uppercase tracking-widest">Or Voice Input</span>
               <div className="flex-grow border-t border-stone-800"></div>
           </div>
 
@@ -152,7 +155,7 @@ export const MediaInput: React.FC<Props> = ({ onAnalyze, isAnalyzing }) => {
                  className="flex items-center gap-3 bg-stone-100 text-stone-900 px-8 py-4 rounded-full font-semibold hover:bg-emerald-400 hover:text-stone-900 hover:shadow-lg hover:shadow-emerald-900/50 transition-all transform hover:-translate-y-1"
                >
                  <Mic size={20} />
-                 Start Audio Log
+                 Describe Activity
                </button>
             ) : (
                <button 
@@ -160,7 +163,7 @@ export const MediaInput: React.FC<Props> = ({ onAnalyze, isAnalyzing }) => {
                  className="flex items-center gap-3 bg-red-500 text-white px-8 py-4 rounded-full font-semibold hover:bg-red-600 transition-all animate-pulse"
                >
                  <StopCircle size={20} />
-                 Stop Recording ({formatTime(recordingTime)})
+                 End Recording ({formatTime(recordingTime)})
                </button>
             )}
           </div>

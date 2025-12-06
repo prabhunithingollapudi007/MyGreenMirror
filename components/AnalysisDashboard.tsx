@@ -1,7 +1,7 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { AnalysisResult, MediaType } from '../types';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip as RechartsTooltip, BarChart, Bar, XAxis, YAxis } from 'recharts';
-import { Leaf, Recycle, Zap, Info, Box, Eye, Wand2, CheckCircle } from 'lucide-react';
+import { Leaf, Recycle, Zap, Info, Box, Eye, Wand2, CheckCircle, Save, BarChart3 } from 'lucide-react';
 
 interface Props {
   result: AnalysisResult;
@@ -55,9 +55,9 @@ export const AnalysisDashboard: React.FC<Props> = ({ result, mediaType, mediaUrl
   };
 
   const getScoreLabel = (score: number) => {
-    if (score < 30) return 'Eco-Friendly';
-    if (score < 70) return 'Moderate Impact';
-    return 'High Impact';
+    if (score < 30) return 'Low Carbon Intensity';
+    if (score < 70) return 'Moderate Footprint';
+    return 'High Carbon Intensity';
   };
 
   return (
@@ -80,7 +80,7 @@ export const AnalysisDashboard: React.FC<Props> = ({ result, mediaType, mediaUrl
                 className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${viewMode === '3d' ? 'bg-stone-700 shadow-sm text-stone-100' : 'text-stone-400 hover:text-stone-200'} ${!visualizationUrl ? 'opacity-50 cursor-wait' : ''}`}
               >
                 {visualizationUrl ? <Box size={16} /> : <Wand2 size={16} className="animate-pulse" />} 
-                {visualizationUrl ? '3D Badge' : 'Generating Badge...'}
+                {visualizationUrl ? 'Data Visualization' : 'Generating Viz...'}
               </button>
            </div>
            {visualizationUrl && viewMode === '3d' && (
@@ -156,13 +156,13 @@ export const AnalysisDashboard: React.FC<Props> = ({ result, mediaType, mediaUrl
           )}
 
           <div className="absolute top-4 right-4 bg-black/60 backdrop-blur text-white px-3 py-1 rounded-full text-xs font-mono border border-white/10">
-             {viewMode === '3d' ? 'Gemini 2.5 Flash Image' : 'Original Input'}
+             {viewMode === '3d' ? 'Impact Visualization' : 'Original Input'}
           </div>
         </div>
 
         <div className="bg-stone-900 p-6 rounded-3xl shadow-sm border border-stone-800">
           <h3 className="text-lg font-semibold text-stone-100 mb-3 flex items-center gap-2">
-            <Info size={18} /> Analysis Summary
+            <Info size={18} /> Emission Analysis
           </h3>
           <p className="text-stone-400 leading-relaxed">{result.summary}</p>
         </div>
@@ -174,12 +174,15 @@ export const AnalysisDashboard: React.FC<Props> = ({ result, mediaType, mediaUrl
         {/* Score Card */}
         <div className="bg-stone-900 p-6 rounded-3xl shadow-sm border border-stone-800 flex items-center justify-between">
           <div>
-            <p className="text-stone-500 text-sm font-medium uppercase tracking-wider">Eco-Impact Score</p>
+            <p className="text-stone-500 text-sm font-medium uppercase tracking-wider">Carbon Footprint Score</p>
             <h2 className={`text-4xl font-bold mt-1 ${getScoreColor(result.totalCarbonScore)}`}>
               {result.totalCarbonScore}<span className="text-xl text-stone-600 font-normal">/100</span>
             </h2>
             <p className={`text-sm font-medium mt-1 ${getScoreColor(result.totalCarbonScore)}`}>
               {getScoreLabel(result.totalCarbonScore)}
+            </p>
+            <p className="text-xs text-stone-500 mt-2 max-w-[200px]">
+              *Score represents estimated GHG emissions intensity. Lower is better.
             </p>
           </div>
           <div className="h-16 w-16 rounded-full border-4 border-stone-800 flex items-center justify-center bg-stone-950">
@@ -190,7 +193,7 @@ export const AnalysisDashboard: React.FC<Props> = ({ result, mediaType, mediaUrl
         {/* Charts Section */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="bg-stone-900 p-5 rounded-3xl shadow-sm border border-stone-800">
-            <h4 className="text-sm font-semibold text-stone-300 mb-4">Composition</h4>
+            <h4 className="text-sm font-semibold text-stone-300 mb-4">Material Composition</h4>
             <div className="h-40">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
@@ -208,14 +211,6 @@ export const AnalysisDashboard: React.FC<Props> = ({ result, mediaType, mediaUrl
                   <RechartsTooltip contentStyle={{ backgroundColor: '#1c1917', border: '1px solid #292524', borderRadius: '8px', color: '#f5f5f4' }} itemStyle={{ color: '#f5f5f4' }} />
                 </PieChart>
               </ResponsiveContainer>
-            </div>
-            <div className="flex flex-wrap gap-2 justify-center mt-2">
-              {categoryDistribution.map((entry) => (
-                 <div key={entry.name} className="flex items-center gap-1 text-xs text-stone-500">
-                    <span className="w-2 h-2 rounded-full" style={{ backgroundColor: COLORS[entry.name as keyof typeof COLORS] || '#ccc' }}></span>
-                    {entry.name}
-                 </div>
-              ))}
             </div>
           </div>
 
@@ -237,7 +232,7 @@ export const AnalysisDashboard: React.FC<Props> = ({ result, mediaType, mediaUrl
         {/* Detailed Items List */}
         <div className="bg-stone-900 rounded-3xl shadow-sm border border-stone-800 overflow-hidden">
           <div className="p-5 border-b border-stone-800 bg-stone-950/30">
-            <h3 className="font-semibold text-stone-200">Identified Items & Tips</h3>
+            <h3 className="font-semibold text-stone-200">Identified Sources & Recommendations</h3>
           </div>
           <div className="divide-y divide-stone-800">
             {result.items.map((item) => (
@@ -273,8 +268,8 @@ export const AnalysisDashboard: React.FC<Props> = ({ result, mediaType, mediaUrl
                 }
               `}
             >
-              <CheckCircle size={20} />
-              {`Save Badge (+${Math.max(10, 100 - result.totalCarbonScore)} pts)`}
+              <Save size={20} />
+              {`Log to History (+${Math.max(10, 100 - result.totalCarbonScore)} pts)`}
             </button>
           )}
 

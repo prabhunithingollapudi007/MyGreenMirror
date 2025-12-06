@@ -20,7 +20,13 @@ I built MyGreenMirror using **React** and **Tailwind CSS** for a responsive, mob
 2.  **Generative Rewards**: To gamify the experience, I utilized `gemini-2.5-flash-image`. When a user successfully logs a habit, the app takes the context (e.g., "Recycled 5 glass bottles") and generates a "3D Isometric Diorama" badge. This serves as a unique digital collectible.
 3.  **Real-time Feedback**: The app uses the model's reasoning capabilities to provide instant "Action Plans" and recycling tips.
 
-[https://ai.studio/apps/drive/1xq8OT_qj_7fc9B07HsIDkA4is_06kdCD?fullscreenApplet=true]
+
+**Live demo**: [https://mygreenmirror-989792641782.us-west1.run.app/] 
+
+**AI Studio Link**: [https://ai.studio/apps/drive/1xq8OT_qj_7fc9B07HsIDkA4is_06kdCD?fullscreenApplet=true] 
+
+**30s walkthrough**: [loom-link]  
+
 
 ## Why it matters
 Sustainability apps often suffer from high friction and low retention. MyGreenMirror solves this by:
