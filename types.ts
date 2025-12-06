@@ -2,7 +2,8 @@
 export enum MediaType {
   IMAGE = 'image',
   VIDEO = 'video',
-  AUDIO = 'audio'
+  AUDIO = 'audio',
+  TEXT = 'text'
 }
 
 export enum MainCategory {

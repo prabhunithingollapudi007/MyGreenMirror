@@ -83,7 +83,10 @@ const analysisSchema: Schema = {
 export const analyzeMedia = async (file: File | Blob, mimeType: string): Promise<AnalysisResult> => {
   let parts: any[] = [];
 
-  if (file instanceof File) {
+  if (mimeType === 'text/plain') {
+      const text = await file.text();
+      parts.push({ text: `User Activity Description: "${text}"` });
+  } else if (file instanceof File) {
       const part = await fileToGenerativePart(file);
       parts.push(part);
   } else {
@@ -98,12 +101,12 @@ export const analyzeMedia = async (file: File | Blob, mimeType: string): Promise
   }
 
   const promptText = `
-    Analyze this input (image, video, or audio) for environmental impact. 
+    Analyze this input (image, video, audio, or text description) for environmental impact. 
     You are an expert Eco-Impact Analyzer.
     
     1. Classify the activity into one of: Waste (recycling/trash), Transport (commute/travel), Food (meals/diet), Energy (electronics/lights), or Lifestyle.
     2. If it's waste: Identify items, recyclability.
-    3. If it's transport/food/energy: Analyze the activity and estimate impact.
+    3. If it's transport/food/energy: Analyze the activity and estimate impact based on standard emission factors.
     
     Provide a carbon footprint estimate (0-100 scale where 100 is bad).
     For images, provide bounding boxes for distinct items if possible.

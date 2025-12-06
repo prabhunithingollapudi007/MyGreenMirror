@@ -1,7 +1,7 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { AnalysisResult, MediaType } from '../types';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip as RechartsTooltip, BarChart, Bar, XAxis, YAxis } from 'recharts';
-import { Leaf, Recycle, Zap, Info, Box, Eye, Wand2, CheckCircle, Save, BarChart3 } from 'lucide-react';
+import { Leaf, Recycle, Zap, Info, Box, Eye, Wand2, CheckCircle, Save, BarChart3, Quote } from 'lucide-react';
 
 interface Props {
   result: AnalysisResult;
@@ -24,6 +24,7 @@ const COLORS = {
 
 export const AnalysisDashboard: React.FC<Props> = ({ result, mediaType, mediaUrl, visualizationUrl, onReset, onSave, isGuest = false }) => {
   const [viewMode, setViewMode] = useState<'original' | '3d'>('original');
+  const [textContent, setTextContent] = useState<string>('');
 
   // Auto-switch to 3D view for audio when ready
   useEffect(() => {
@@ -31,6 +32,13 @@ export const AnalysisDashboard: React.FC<Props> = ({ result, mediaType, mediaUrl
       setViewMode('3d');
     }
   }, [visualizationUrl, mediaType]);
+
+  // Load text content from blob if needed
+  useEffect(() => {
+    if (mediaType === MediaType.TEXT && mediaUrl) {
+      fetch(mediaUrl).then(r => r.text()).then(setTextContent).catch(console.error);
+    }
+  }, [mediaUrl, mediaType]);
 
   const chartData = useMemo(() => {
     return result.items.map(item => ({
@@ -152,11 +160,20 @@ export const AnalysisDashboard: React.FC<Props> = ({ result, mediaType, mediaUrl
                    `}</style>
                 </div>
               )}
+
+              {mediaType === MediaType.TEXT && (
+                <div className="w-full h-full flex flex-col items-center justify-center bg-stone-900 p-12 text-center overflow-auto">
+                    <Quote size={48} className="text-stone-700 mb-6 shrink-0" />
+                    <p className="text-xl md:text-2xl text-stone-300 font-serif italic leading-relaxed max-w-lg">
+                      "{textContent}"
+                    </p>
+                </div>
+              )}
             </>
           )}
 
           <div className="absolute top-4 right-4 bg-black/60 backdrop-blur text-white px-3 py-1 rounded-full text-xs font-mono border border-white/10">
-             {viewMode === '3d' ? 'Impact Visualization' : 'Original Input'}
+             {viewMode === '3d' ? 'Impact Visualization' : mediaType === MediaType.TEXT ? 'Text Input' : 'Original Input'}
           </div>
         </div>
 
