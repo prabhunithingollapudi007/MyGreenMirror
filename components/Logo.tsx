@@ -19,7 +19,7 @@ export const Logo: React.FC<{ className?: string }> = ({ className = "w-8 h-8" }
       <path 
         d="M12 21.5C12 21.5 3 16 3 9C3 5 6.5 2.5 12 2.5V21.5Z" 
         fill="currentColor" 
-        className="text-emerald-600"
+        className="text-emerald-500"
       />
       
       {/* Right side - Outlined (Reflection) */}
@@ -38,7 +38,7 @@ export const Logo: React.FC<{ className?: string }> = ({ className = "w-8 h-8" }
         stroke="white" 
         strokeWidth="1.5" 
         strokeLinecap="round" 
-        opacity="0.4"
+        opacity="0.6"
       />
     </svg>
   );

@@ -5,8 +5,8 @@ import { ProfileView } from './components/ProfileView';
 import { LeaderboardView } from './components/LeaderboardView';
 import { MediaType, AnalysisResult, UserProfile, LogEntry } from './types';
 import { analyzeMedia, generateEcoVisualization } from './services/geminiService';
-import { loginUser, logoutUser, saveLog, getLeaderboard } from './services/storageService';
-import { User, Scan, Trophy } from 'lucide-react';
+import { loginUser, logoutUser, saveLog, getLeaderboard, deleteLog, getUser, createGuestUser } from './services/storageService';
+import { User, Scan, Trophy, ArrowRight } from 'lucide-react';
 import { Logo } from './components/Logo';
 
 type ViewState = 'scan' | 'profile' | 'leaderboard';
@@ -28,20 +28,31 @@ const App: React.FC = () => {
 
   // Load user on mount
   useEffect(() => {
-    loginUser().then(setUser); // Try silent login
+    const existing = getUser();
+    if (existing) {
+      setUser(existing);
+    }
   }, []);
 
   const handleLogin = async () => {
     setIsLoggingIn(true);
-    const u = await loginUser();
+    // If currently a guest, pass the user object to merge
+    const userToMerge = user?.isGuest ? user : undefined;
+    const u = await loginUser(userToMerge);
     setUser(u);
     setIsLoggingIn(false);
+    return u;
   };
 
   const handleLogout = () => {
     logoutUser();
     setUser(null);
     setCurrentView('scan');
+  };
+
+  const handleGuestAccess = () => {
+    const guest = createGuestUser();
+    setUser(guest);
   };
 
   const handleAnalyze = useCallback(async (file: File | Blob, type: MediaType) => {
@@ -73,7 +84,7 @@ const App: React.FC = () => {
     }
   }, []);
 
-  const handleSaveResult = useCallback(() => {
+  const handleSaveResult = useCallback(async () => {
     if (!user || !result || !mediaUrl) return;
 
     const points = Math.max(10, 100 - result.totalCarbonScore);
@@ -92,6 +103,12 @@ const App: React.FC = () => {
     setCurrentView('profile'); // Redirect to profile to see the new badge
   }, [user, result, mediaUrl, mediaType, visualizationUrl]);
 
+  const handleDeleteLog = useCallback((logId: string) => {
+    if (!user) return;
+    const updatedUser = deleteLog(user, logId);
+    setUser(updatedUser);
+  }, [user]);
+
   const handleReset = useCallback(() => {
     if (mediaUrl) URL.revokeObjectURL(mediaUrl);
     setResult(null);
@@ -100,66 +117,86 @@ const App: React.FC = () => {
     setVisualizationUrl(null);
   }, [mediaUrl]);
 
-  // Auth Screen
+  // Auth Screen (Only if not logged in (neither guest nor real user) AND not currently analyzing)
   if (!user && !isAnalyzing && !result) {
     return (
-      <div className="min-h-screen bg-stone-50 flex flex-col items-center justify-center p-6 text-center">
-         <div className="bg-emerald-100 p-6 rounded-3xl text-emerald-600 mb-6 animate-fade-in-up shadow-sm">
+      <div className="min-h-screen bg-stone-950 flex flex-col items-center justify-center p-6 text-center">
+         <div className="bg-stone-900 p-6 rounded-3xl text-emerald-500 mb-6 animate-fade-in-up shadow-sm border border-stone-800">
             <Logo className="w-16 h-16" />
          </div>
-         <h1 className="text-4xl font-bold text-stone-900 mb-2">MyGreenMirror</h1>
-         <p className="text-stone-500 max-w-md mb-8">
+         <h1 className="text-4xl font-bold text-stone-100 mb-2">MyGreenMirror</h1>
+         <p className="text-stone-400 max-w-md mb-8">
            Join the community of eco-conscious individuals. Log habits, visualize your impact, and compete with friends.
          </p>
          
-         <button 
-           onClick={handleLogin}
-           disabled={isLoggingIn}
-           className="bg-white border border-stone-200 text-stone-800 px-6 py-3 rounded-full font-semibold shadow-sm flex items-center gap-3 hover:bg-stone-50 transition-all"
-         >
-           {isLoggingIn ? (
-             <div className="w-5 h-5 border-2 border-stone-800 border-t-transparent rounded-full animate-spin"></div>
-           ) : (
-             <svg className="w-5 h-5" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
-           )}
-           Sign in with Google
-         </button>
+         <div className="flex flex-col gap-4 w-full max-w-xs">
+           <button 
+             onClick={() => handleLogin()}
+             disabled={isLoggingIn}
+             className="w-full bg-stone-100 border border-stone-200 text-stone-900 px-6 py-3.5 rounded-xl font-bold shadow-sm flex items-center justify-center gap-3 hover:bg-white transition-all"
+           >
+             {isLoggingIn ? (
+               <div className="w-5 h-5 border-2 border-stone-800 border-t-transparent rounded-full animate-spin"></div>
+             ) : (
+               <svg className="w-5 h-5" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+             )}
+             Sign in with Google
+           </button>
+           
+           <button 
+             onClick={handleGuestAccess}
+             className="w-full bg-stone-800 text-stone-300 px-6 py-3.5 rounded-xl font-medium flex items-center justify-center gap-2 hover:bg-stone-700 hover:text-stone-100 transition-all"
+           >
+             Continue as Guest <ArrowRight size={16} />
+           </button>
+         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#FDFDF9] text-stone-900 flex flex-col font-sans selection:bg-emerald-200 selection:text-emerald-900">
+    <div className="min-h-screen bg-stone-950 text-stone-100 flex flex-col font-sans selection:bg-emerald-900 selection:text-emerald-100">
       
       {/* Navigation */}
-      <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-stone-100">
+      <nav className="sticky top-0 z-50 bg-stone-900/80 backdrop-blur-md border-b border-stone-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2 cursor-pointer" onClick={() => setCurrentView('scan')}>
-            <div className="bg-emerald-100 p-2 rounded-xl text-emerald-600">
+            <div className="bg-stone-800 p-2 rounded-xl text-emerald-500">
                <Logo className="w-6 h-6" />
             </div>
-            <span className="text-xl font-bold tracking-tight text-stone-800 hidden sm:block">MyGreenMirror</span>
+            <span className="text-xl font-bold tracking-tight text-stone-100 hidden sm:block">MyGreenMirror</span>
           </div>
           
-          <div className="flex items-center gap-2 bg-stone-100 p-1 rounded-full">
-            <button 
-              onClick={() => { setCurrentView('scan'); handleReset(); }}
-              className={`p-2 rounded-full transition-all ${currentView === 'scan' ? 'bg-white shadow-sm text-emerald-600' : 'text-stone-400 hover:text-stone-600'}`}
-            >
-              <Scan size={20} />
-            </button>
-            <button 
-              onClick={() => { if(!isAnalyzing) setCurrentView('leaderboard'); }}
-              className={`p-2 rounded-full transition-all ${currentView === 'leaderboard' ? 'bg-white shadow-sm text-emerald-600' : 'text-stone-400 hover:text-stone-600'}`}
-            >
-              <Trophy size={20} />
-            </button>
-            <button 
-              onClick={() => { if(!isAnalyzing) setCurrentView('profile'); }}
-              className={`p-2 rounded-full transition-all ${currentView === 'profile' ? 'bg-white shadow-sm text-emerald-600' : 'text-stone-400 hover:text-stone-600'}`}
-            >
-              <User size={20} />
-            </button>
+          <div className="flex items-center gap-2">
+            {user?.isGuest && !isLoggingIn && (
+               <button 
+                 onClick={() => handleLogin()}
+                 className="hidden sm:flex text-sm font-semibold text-emerald-400 bg-emerald-500/10 px-3 py-1.5 rounded-lg border border-emerald-500/20 mr-2 hover:bg-emerald-500/20"
+               >
+                 Sign In
+               </button>
+            )}
+            
+            <div className="flex items-center gap-2 bg-stone-800 p-1 rounded-full border border-stone-700">
+              <button 
+                onClick={() => { setCurrentView('scan'); handleReset(); }}
+                className={`p-2 rounded-full transition-all ${currentView === 'scan' ? 'bg-stone-700 shadow-sm text-emerald-400' : 'text-stone-500 hover:text-stone-300'}`}
+              >
+                <Scan size={20} />
+              </button>
+              <button 
+                onClick={() => { if(!isAnalyzing) setCurrentView('leaderboard'); }}
+                className={`p-2 rounded-full transition-all ${currentView === 'leaderboard' ? 'bg-stone-700 shadow-sm text-emerald-400' : 'text-stone-500 hover:text-stone-300'}`}
+              >
+                <Trophy size={20} />
+              </button>
+              <button 
+                onClick={() => { if(!isAnalyzing) setCurrentView('profile'); }}
+                className={`p-2 rounded-full transition-all ${currentView === 'profile' ? 'bg-stone-700 shadow-sm text-emerald-400' : 'text-stone-500 hover:text-stone-300'}`}
+              >
+                <User size={20} />
+              </button>
+            </div>
           </div>
         </div>
       </nav>
@@ -173,10 +210,10 @@ const App: React.FC = () => {
             {!result ? (
               <>
                 <div className="text-center mb-10 mt-4">
-                  <h1 className="text-3xl sm:text-5xl font-extrabold text-stone-900 tracking-tight mb-3">
-                     Hello, <span className="text-emerald-600">{user?.name.split(' ')[0]}</span>
+                  <h1 className="text-3xl sm:text-5xl font-extrabold text-stone-100 tracking-tight mb-3">
+                     Hello, <span className="text-emerald-500">{user ? user.name.split(' ')[0] : 'Guest'}</span>
                   </h1>
-                  <p className="text-stone-500">Ready to log a new habit?</p>
+                  <p className="text-stone-400">Ready to log a new habit?</p>
                 </div>
                 <MediaInput onAnalyze={handleAnalyze} isAnalyzing={isAnalyzing} />
               </>
@@ -188,6 +225,7 @@ const App: React.FC = () => {
                 visualizationUrl={visualizationUrl}
                 onReset={handleReset} 
                 onSave={handleSaveResult}
+                isGuest={user?.isGuest}
               />
             )}
           </div>
@@ -195,12 +233,17 @@ const App: React.FC = () => {
 
         {/* VIEW: PROFILE */}
         {currentView === 'profile' && user && (
-          <ProfileView user={user} onLogout={handleLogout} />
+            <ProfileView 
+              user={user} 
+              onLogout={handleLogout} 
+              onDeleteLog={handleDeleteLog} 
+              onLogin={user.isGuest ? handleLogin : undefined}
+            />
         )}
 
         {/* VIEW: LEADERBOARD */}
         {currentView === 'leaderboard' && user && (
-          <LeaderboardView entries={getLeaderboard(user)} />
+            <LeaderboardView entries={getLeaderboard(user)} />
         )}
 
       </main>

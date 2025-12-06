@@ -101,20 +101,20 @@ export const MediaInput: React.FC<Props> = ({ onAnalyze, isAnalyzing }) => {
       {isAnalyzing ? (
         <div className="text-center py-20 animate-pulse">
            <div className="w-16 h-16 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto mb-6"></div>
-           <h3 className="text-2xl font-semibold text-stone-800">Analyzing Eco-Impact...</h3>
-           <p className="text-stone-500 mt-2">Identifying items and calculating footprint</p>
+           <h3 className="text-2xl font-semibold text-stone-100">Analyzing Eco-Impact...</h3>
+           <p className="text-stone-400 mt-2">Identifying items and calculating footprint</p>
         </div>
       ) : (
-        <div className="bg-white rounded-[2rem] shadow-xl p-8 border border-stone-100 transition-all">
+        <div className="bg-stone-900 rounded-[2rem] shadow-xl p-8 border border-stone-800 transition-all">
           <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold text-stone-800 mb-2">Log a Daily Habit</h2>
-            <p className="text-stone-500">Upload a photo of your recycling bin, a video of your commute, or record a voice note.</p>
+            <h2 className="text-3xl font-bold text-stone-100 mb-2">Log a Daily Habit</h2>
+            <p className="text-stone-400">Upload a photo of your recycling bin, a video of your commute, or record a voice note.</p>
           </div>
 
           <div 
             className={`
               relative border-3 border-dashed rounded-2xl h-64 flex flex-col items-center justify-center transition-all cursor-pointer group
-              ${dragActive ? 'border-emerald-500 bg-emerald-50/50' : 'border-stone-200 hover:border-emerald-400 hover:bg-stone-50'}
+              ${dragActive ? 'border-emerald-500 bg-emerald-500/10' : 'border-stone-700 hover:border-emerald-500 hover:bg-stone-800'}
             `}
             onDragEnter={handleDrag}
             onDragLeave={handleDrag}
@@ -129,27 +129,27 @@ export const MediaInput: React.FC<Props> = ({ onAnalyze, isAnalyzing }) => {
             />
             
             <div className="pointer-events-none flex flex-col items-center gap-4">
-              <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-600 group-hover:scale-110 transition-transform">
+              <div className="w-16 h-16 bg-stone-800 rounded-full flex items-center justify-center text-emerald-500 group-hover:scale-110 transition-transform">
                 <Upload size={32} />
               </div>
               <div className="text-center">
-                <p className="font-semibold text-stone-700 text-lg">Drop your photo or video here</p>
-                <p className="text-sm text-stone-400 mt-1">Supports JPG, PNG, MP4</p>
+                <p className="font-semibold text-stone-200 text-lg">Drop your photo or video here</p>
+                <p className="text-sm text-stone-500 mt-1">Supports JPG, PNG, MP4</p>
               </div>
             </div>
           </div>
 
           <div className="relative flex py-8 items-center">
-              <div className="flex-grow border-t border-stone-200"></div>
-              <span className="flex-shrink-0 mx-4 text-stone-400 text-sm font-medium uppercase tracking-widest">Or Record</span>
-              <div className="flex-grow border-t border-stone-200"></div>
+              <div className="flex-grow border-t border-stone-800"></div>
+              <span className="flex-shrink-0 mx-4 text-stone-500 text-sm font-medium uppercase tracking-widest">Or Record</span>
+              <div className="flex-grow border-t border-stone-800"></div>
           </div>
 
           <div className="flex justify-center">
             {!isRecording ? (
                <button 
                  onClick={startRecording}
-                 className="flex items-center gap-3 bg-stone-900 text-white px-8 py-4 rounded-full font-semibold hover:bg-emerald-600 hover:shadow-lg hover:shadow-emerald-200 transition-all transform hover:-translate-y-1"
+                 className="flex items-center gap-3 bg-stone-100 text-stone-900 px-8 py-4 rounded-full font-semibold hover:bg-emerald-400 hover:text-stone-900 hover:shadow-lg hover:shadow-emerald-900/50 transition-all transform hover:-translate-y-1"
                >
                  <Mic size={20} />
                  Start Audio Log

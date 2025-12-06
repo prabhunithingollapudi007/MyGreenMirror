@@ -10,6 +10,7 @@ interface Props {
   visualizationUrl: string | null;
   onReset: () => void;
   onSave?: () => void;
+  isGuest?: boolean;
 }
 
 const COLORS = {
@@ -21,7 +22,7 @@ const COLORS = {
   Other: '#f59e0b', // amber-500
 };
 
-export const AnalysisDashboard: React.FC<Props> = ({ result, mediaType, mediaUrl, visualizationUrl, onReset, onSave }) => {
+export const AnalysisDashboard: React.FC<Props> = ({ result, mediaType, mediaUrl, visualizationUrl, onReset, onSave, isGuest = false }) => {
   const [viewMode, setViewMode] = useState<'original' | '3d'>('original');
 
   // Auto-switch to 3D view for audio when ready
@@ -48,9 +49,9 @@ export const AnalysisDashboard: React.FC<Props> = ({ result, mediaType, mediaUrl
   }, [result]);
 
   const getScoreColor = (score: number) => {
-    if (score < 30) return 'text-emerald-600';
-    if (score < 70) return 'text-amber-500';
-    return 'text-red-500';
+    if (score < 30) return 'text-emerald-400';
+    if (score < 70) return 'text-amber-400';
+    return 'text-red-400';
   };
 
   const getScoreLabel = (score: number) => {
@@ -66,28 +67,28 @@ export const AnalysisDashboard: React.FC<Props> = ({ result, mediaType, mediaUrl
         
         {/* View Toggle */}
         <div className="flex items-center justify-between">
-           <div className="flex bg-stone-100 p-1 rounded-xl">
+           <div className="flex bg-stone-800 p-1 rounded-xl">
               <button 
                 onClick={() => setViewMode('original')}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${viewMode === 'original' ? 'bg-white shadow-sm text-stone-800' : 'text-stone-500 hover:text-stone-700'}`}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${viewMode === 'original' ? 'bg-stone-700 shadow-sm text-stone-100' : 'text-stone-400 hover:text-stone-200'}`}
               >
                 <Eye size={16} /> Original
               </button>
               <button 
                 onClick={() => setViewMode('3d')}
                 disabled={!visualizationUrl}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${viewMode === '3d' ? 'bg-white shadow-sm text-stone-800' : 'text-stone-500 hover:text-stone-700'} ${!visualizationUrl ? 'opacity-50 cursor-wait' : ''}`}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${viewMode === '3d' ? 'bg-stone-700 shadow-sm text-stone-100' : 'text-stone-400 hover:text-stone-200'} ${!visualizationUrl ? 'opacity-50 cursor-wait' : ''}`}
               >
                 {visualizationUrl ? <Box size={16} /> : <Wand2 size={16} className="animate-pulse" />} 
                 {visualizationUrl ? '3D Badge' : 'Generating Badge...'}
               </button>
            </div>
            {visualizationUrl && viewMode === '3d' && (
-             <span className="text-xs font-mono text-emerald-600 bg-emerald-50 px-2 py-1 rounded-full border border-emerald-100">AI Generated</span>
+             <span className="text-xs font-mono text-emerald-400 bg-emerald-500/10 px-2 py-1 rounded-full border border-emerald-500/20">AI Generated</span>
            )}
         </div>
 
-        <div className="relative bg-stone-900 rounded-3xl overflow-hidden shadow-xl aspect-square or-video-aspect group ring-1 ring-stone-100">
+        <div className="relative bg-black rounded-3xl overflow-hidden shadow-xl aspect-square or-video-aspect group ring-1 ring-stone-800">
           
           {/* 3D Visualization View */}
           {viewMode === '3d' && visualizationUrl && (
@@ -159,11 +160,11 @@ export const AnalysisDashboard: React.FC<Props> = ({ result, mediaType, mediaUrl
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-3xl shadow-sm border border-stone-100">
-          <h3 className="text-lg font-semibold text-stone-800 mb-3 flex items-center gap-2">
+        <div className="bg-stone-900 p-6 rounded-3xl shadow-sm border border-stone-800">
+          <h3 className="text-lg font-semibold text-stone-100 mb-3 flex items-center gap-2">
             <Info size={18} /> Analysis Summary
           </h3>
-          <p className="text-stone-600 leading-relaxed">{result.summary}</p>
+          <p className="text-stone-400 leading-relaxed">{result.summary}</p>
         </div>
       </div>
 
@@ -171,25 +172,25 @@ export const AnalysisDashboard: React.FC<Props> = ({ result, mediaType, mediaUrl
       <div className="flex-1 flex flex-col gap-6 overflow-y-auto pb-10">
         
         {/* Score Card */}
-        <div className="bg-white p-6 rounded-3xl shadow-sm border border-stone-100 flex items-center justify-between">
+        <div className="bg-stone-900 p-6 rounded-3xl shadow-sm border border-stone-800 flex items-center justify-between">
           <div>
             <p className="text-stone-500 text-sm font-medium uppercase tracking-wider">Eco-Impact Score</p>
             <h2 className={`text-4xl font-bold mt-1 ${getScoreColor(result.totalCarbonScore)}`}>
-              {result.totalCarbonScore}<span className="text-xl text-stone-400 font-normal">/100</span>
+              {result.totalCarbonScore}<span className="text-xl text-stone-600 font-normal">/100</span>
             </h2>
             <p className={`text-sm font-medium mt-1 ${getScoreColor(result.totalCarbonScore)}`}>
               {getScoreLabel(result.totalCarbonScore)}
             </p>
           </div>
-          <div className="h-16 w-16 rounded-full border-4 border-stone-100 flex items-center justify-center bg-stone-50">
+          <div className="h-16 w-16 rounded-full border-4 border-stone-800 flex items-center justify-center bg-stone-950">
             <Leaf size={24} className={getScoreColor(result.totalCarbonScore)} />
           </div>
         </div>
 
         {/* Charts Section */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="bg-white p-5 rounded-3xl shadow-sm border border-stone-100">
-            <h4 className="text-sm font-semibold text-stone-700 mb-4">Composition</h4>
+          <div className="bg-stone-900 p-5 rounded-3xl shadow-sm border border-stone-800">
+            <h4 className="text-sm font-semibold text-stone-300 mb-4">Composition</h4>
             <div className="h-40">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
@@ -201,10 +202,10 @@ export const AnalysisDashboard: React.FC<Props> = ({ result, mediaType, mediaUrl
                     dataKey="value"
                   >
                     {categoryDistribution.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[entry.name as keyof typeof COLORS] || '#ccc'} />
+                      <Cell key={`cell-${index}`} fill={COLORS[entry.name as keyof typeof COLORS] || '#ccc'} stroke="none" />
                     ))}
                   </Pie>
-                  <RechartsTooltip />
+                  <RechartsTooltip contentStyle={{ backgroundColor: '#1c1917', border: '1px solid #292524', borderRadius: '8px', color: '#f5f5f4' }} itemStyle={{ color: '#f5f5f4' }} />
                 </PieChart>
               </ResponsiveContainer>
             </div>
@@ -218,14 +219,14 @@ export const AnalysisDashboard: React.FC<Props> = ({ result, mediaType, mediaUrl
             </div>
           </div>
 
-          <div className="bg-white p-5 rounded-3xl shadow-sm border border-stone-100">
-            <h4 className="text-sm font-semibold text-stone-700 mb-4">Carbon Impact (g CO2e)</h4>
+          <div className="bg-stone-900 p-5 rounded-3xl shadow-sm border border-stone-800">
+            <h4 className="text-sm font-semibold text-stone-300 mb-4">Carbon Impact (g CO2e)</h4>
             <div className="h-40">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={chartData}>
                   <XAxis dataKey="name" hide />
-                  <YAxis />
-                  <RechartsTooltip cursor={{fill: 'transparent'}} />
+                  <YAxis tick={{ fill: '#78716c', fontSize: 10 }} axisLine={false} tickLine={false} />
+                  <RechartsTooltip cursor={{fill: '#292524'}} contentStyle={{ backgroundColor: '#1c1917', border: '1px solid #292524', borderRadius: '8px', color: '#f5f5f4' }} />
                   <Bar dataKey="value" fill="#34d399" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
@@ -234,24 +235,24 @@ export const AnalysisDashboard: React.FC<Props> = ({ result, mediaType, mediaUrl
         </div>
 
         {/* Detailed Items List */}
-        <div className="bg-white rounded-3xl shadow-sm border border-stone-100 overflow-hidden">
-          <div className="p-5 border-b border-stone-100 bg-stone-50/50">
-            <h3 className="font-semibold text-stone-800">Identified Items & Tips</h3>
+        <div className="bg-stone-900 rounded-3xl shadow-sm border border-stone-800 overflow-hidden">
+          <div className="p-5 border-b border-stone-800 bg-stone-950/30">
+            <h3 className="font-semibold text-stone-200">Identified Items & Tips</h3>
           </div>
-          <div className="divide-y divide-stone-100">
+          <div className="divide-y divide-stone-800">
             {result.items.map((item) => (
-              <div key={item.id} className="p-4 hover:bg-stone-50 transition-colors">
+              <div key={item.id} className="p-4 hover:bg-stone-800 transition-colors">
                 <div className="flex justify-between items-start mb-2">
                   <div className="flex items-center gap-2">
-                    <span className="font-medium text-stone-900">{item.name}</span>
-                    <span className="text-xs px-2 py-0.5 rounded-full bg-stone-100 text-stone-500 font-medium">
+                    <span className="font-medium text-stone-200">{item.name}</span>
+                    <span className="text-xs px-2 py-0.5 rounded-full bg-stone-800 text-stone-400 font-medium">
                       {item.category}
                     </span>
                   </div>
-                  <span className="text-sm font-mono text-stone-400">{item.carbonFootprint}g CO2e</span>
+                  <span className="text-sm font-mono text-stone-500">{item.carbonFootprint}g CO2e</span>
                 </div>
-                <p className="text-sm text-stone-600 mb-2">{item.impactDescription}</p>
-                <div className="flex items-start gap-2 text-sm text-emerald-700 bg-emerald-50 p-2 rounded-lg">
+                <p className="text-sm text-stone-400 mb-2">{item.impactDescription}</p>
+                <div className="flex items-start gap-2 text-sm text-emerald-400 bg-emerald-500/10 p-2 rounded-lg">
                   <Recycle size={14} className="mt-0.5 shrink-0" />
                   <span>{item.suggestion}</span>
                 </div>
@@ -265,16 +266,21 @@ export const AnalysisDashboard: React.FC<Props> = ({ result, mediaType, mediaUrl
           {onSave && visualizationUrl && (
             <button 
               onClick={onSave}
-              className="w-full py-4 rounded-2xl bg-stone-900 text-white font-semibold hover:bg-emerald-600 shadow-lg shadow-emerald-200 hover:-translate-y-1 transition-all flex items-center justify-center gap-2"
+              className={`w-full py-4 rounded-2xl font-semibold hover:shadow-lg transition-all flex items-center justify-center gap-2
+                ${isGuest 
+                  ? 'bg-emerald-600 text-white hover:bg-emerald-500 hover:shadow-emerald-900/40' 
+                  : 'bg-stone-100 text-stone-900 hover:bg-emerald-400 hover:shadow-emerald-900/40'
+                }
+              `}
             >
               <CheckCircle size={20} />
-              Save Badge (+{Math.max(10, 100 - result.totalCarbonScore)} pts)
+              {`Save Badge (+${Math.max(10, 100 - result.totalCarbonScore)} pts)`}
             </button>
           )}
 
           <button 
             onClick={onReset}
-            className="w-full py-4 rounded-2xl border-2 border-stone-200 text-stone-500 font-semibold hover:border-emerald-500 hover:text-emerald-600 transition-all"
+            className="w-full py-4 rounded-2xl border-2 border-stone-800 text-stone-500 font-semibold hover:border-emerald-500/50 hover:text-emerald-400 transition-all"
           >
             Discard & Start Over
           </button>

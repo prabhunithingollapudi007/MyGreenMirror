@@ -1,3 +1,4 @@
+
 export enum MediaType {
   IMAGE = 'image',
   VIDEO = 'video',
@@ -54,6 +55,7 @@ export interface UserProfile {
   totalPoints: number;
   streakDays: number;
   logs: LogEntry[];
+  isGuest?: boolean;
 }
 
 export interface LeaderboardEntry {
