@@ -8,6 +8,7 @@ import { analyzeMedia, generateEcoVisualization } from './services/geminiService
 import { loginUser, logoutUser, saveLog, getLeaderboard, deleteLog, getUser, createGuestUser } from './services/storageService';
 import { User, Scan, Trophy, ArrowRight, Activity } from 'lucide-react';
 import { Logo } from './components/Logo';
+import { DiscardModal } from './components/DiscardModal';
 
 type ViewState = 'scan' | 'profile' | 'leaderboard';
 
@@ -18,6 +19,7 @@ const App: React.FC = () => {
   
   // App State
   const [currentView, setCurrentView] = useState<ViewState>('scan');
+  const [pendingView, setPendingView] = useState<ViewState | null>(null);
   
   // Analysis State
   const [result, setResult] = useState<AnalysisResult | null>(null);
@@ -84,6 +86,14 @@ const App: React.FC = () => {
     }
   }, []);
 
+  const handleReset = useCallback(() => {
+    if (mediaUrl) URL.revokeObjectURL(mediaUrl);
+    setResult(null);
+    setMediaUrl(null);
+    setMediaType(null);
+    setVisualizationUrl(null);
+  }, [mediaUrl]);
+
   const handleSaveResult = useCallback(async () => {
     if (!user || !result || !mediaUrl) return;
 
@@ -101,7 +111,7 @@ const App: React.FC = () => {
     setUser(updatedUser);
     handleReset();
     setCurrentView('profile'); // Redirect to profile to see the new badge
-  }, [user, result, mediaUrl, mediaType, visualizationUrl]);
+  }, [user, result, mediaUrl, mediaType, visualizationUrl, handleReset]);
 
   const handleDeleteLog = useCallback((logId: string) => {
     if (!user) return;
@@ -109,13 +119,32 @@ const App: React.FC = () => {
     setUser(updatedUser);
   }, [user]);
 
-  const handleReset = useCallback(() => {
-    if (mediaUrl) URL.revokeObjectURL(mediaUrl);
-    setResult(null);
-    setMediaUrl(null);
-    setMediaType(null);
-    setVisualizationUrl(null);
-  }, [mediaUrl]);
+  // Navigation Logic with Warning
+  const handleNavigation = useCallback((targetView: ViewState) => {
+    if (isAnalyzing) return;
+    
+    // Check if we have unsaved results (active result + on scan page)
+    const hasUnsavedChanges = result !== null && currentView === 'scan';
+    
+    // If clicking the same tab, do nothing (unless it's scan, which might be a reset intent)
+    if (targetView === currentView && targetView !== 'scan') return;
+
+    if (hasUnsavedChanges) {
+      setPendingView(targetView);
+    } else {
+      // Standard navigation
+      if (targetView === 'scan') handleReset();
+      setCurrentView(targetView);
+    }
+  }, [isAnalyzing, result, currentView, handleReset]);
+
+  const confirmNavigation = useCallback(() => {
+    if (pendingView) {
+      handleReset();
+      setCurrentView(pendingView);
+      setPendingView(null);
+    }
+  }, [pendingView, handleReset]);
 
   // Auth Screen (Only if not logged in (neither guest nor real user) AND not currently analyzing)
   if (!user && !isAnalyzing && !result) {
@@ -158,10 +187,18 @@ const App: React.FC = () => {
   return (
     <div className="min-h-screen bg-stone-950 text-stone-100 flex flex-col font-sans selection:bg-emerald-900 selection:text-emerald-100">
       
+      {/* Discard Warning Modal */}
+      {pendingView && (
+        <DiscardModal 
+          onCancel={() => setPendingView(null)}
+          onConfirm={confirmNavigation}
+        />
+      )}
+
       {/* Navigation */}
       <nav className="sticky top-0 z-50 bg-stone-900/80 backdrop-blur-md border-b border-stone-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2 cursor-pointer" onClick={() => setCurrentView('scan')}>
+          <div className="flex items-center gap-2 cursor-pointer" onClick={() => handleNavigation('scan')}>
             <div className="bg-stone-800 p-2 rounded-xl text-emerald-500">
                <Logo className="w-6 h-6" />
             </div>
@@ -180,21 +217,21 @@ const App: React.FC = () => {
             
             <div className="flex items-center gap-2 bg-stone-800 p-1 rounded-full border border-stone-700">
               <button 
-                onClick={() => { setCurrentView('scan'); handleReset(); }}
+                onClick={() => handleNavigation('scan')}
                 className={`p-2 rounded-full transition-all ${currentView === 'scan' ? 'bg-stone-700 shadow-sm text-emerald-400' : 'text-stone-500 hover:text-stone-300'}`}
                 title="Analyzer"
               >
                 <Scan size={20} />
               </button>
               <button 
-                onClick={() => { if(!isAnalyzing) setCurrentView('leaderboard'); }}
+                onClick={() => handleNavigation('leaderboard')}
                 className={`p-2 rounded-full transition-all ${currentView === 'leaderboard' ? 'bg-stone-700 shadow-sm text-emerald-400' : 'text-stone-500 hover:text-stone-300'}`}
                 title="Community Stats"
               >
                 <Activity size={20} />
               </button>
               <button 
-                onClick={() => { if(!isAnalyzing) setCurrentView('profile'); }}
+                onClick={() => handleNavigation('profile')}
                 className={`p-2 rounded-full transition-all ${currentView === 'profile' ? 'bg-stone-700 shadow-sm text-emerald-400' : 'text-stone-500 hover:text-stone-300'}`}
                 title="Your Footprint"
               >
