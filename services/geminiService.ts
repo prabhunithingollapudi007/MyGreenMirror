@@ -116,7 +116,7 @@ export const analyzeMedia = async (file: File | Blob, mimeType: string): Promise
 
   try {
     const response = await ai.models.generateContent({
-      model: "gemini-3-pro-preview",
+      model: "gemini-2.5-flash",
       contents: { parts },
       config: {
         responseMimeType: "application/json",
